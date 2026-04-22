@@ -1,0 +1,27 @@
+name: Build MSI
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Install WiX Toolset
+      run: |
+        choco install wixtoolset --yes
+
+    - name: Build MSI
+      run: |
+        candle.exe Product.wxs
+        light.exe Product.wixobj -o IOC-Support-RustDesk-Client.msi
+
+    - name: Upload MSI
+      uses: actions/upload-artifact@v3
+      with:
+        name: IOC-Support-RustDesk-Client
+        path: IOC-Support-RustDesk-Client.msi
