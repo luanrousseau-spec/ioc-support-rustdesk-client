@@ -1,0 +1,73 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+  <Product
+    Id="*"
+    Name="IOC Support RustDesk Client"
+    Language="1033"
+    Version="1.0.0.0"
+    Manufacturer="IOC Support"
+    UpgradeCode="A1B2C3D4-E5F6-47AA-8899-112233445566">
+
+    <Package
+      InstallerVersion="500"
+      Compressed="yes"
+      InstallScope="perMachine"
+      InstallPrivileges="elevated" />
+
+    <MajorUpgrade
+      AllowDowngrades="no"
+      DowngradeErrorMessage="A newer version of IOC Support RustDesk Client is already installed." />
+
+    <MediaTemplate EmbedCab="yes" />
+
+    <!-- MAIN FEATURE -->
+    <Feature Id="MainFeature" Title="IOC Support RustDesk Client" Level="1">
+      <ComponentRef Id="cmpInstallerScript" />
+    </Feature>
+
+    <!-- DIRECTORY STRUCTURE -->
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="DIR_IOC_ROOT" Name="IOC-Support-Client">
+          <Directory Id="DIR_INSTALLER" Name="Installer">
+
+            <Component Id="cmpInstallerScript" Guid="B7C1F8C2-0F11-4F0C-9C33-ABCDEF123456">
+              <File
+                Id="filInstallRustDeskPs1"
+                Source="Install-RustDesk.ps1"
+                KeyPath="yes"
+                Name="Install-RustDesk.ps1" />
+            </Component>
+
+          </Directory>
+        </Directory>
+      </Directory>
+    </Directory>
+
+    <!-- FIND POWERSHELL -->
+    <Property Id="POWERSHELLEXE">
+      <RegistrySearch
+        Id="SearchPowerShell"
+        Root="HKLM"
+        Key="SOFTWARE\Microsoft\PowerShell\1\ShellIds\Microsoft.PowerShell"
+        Name="Path"
+        Type="raw" />
+    </Property>
+
+    <!-- CUSTOM ACTION TO RUN THE SCRIPT -->
+    <CustomAction
+      Id="CA_RunRustDeskInstaller"
+      Property="POWERSHELLEXE"
+      Execute="deferred"
+      Return="check"
+      Impersonate="no"
+      ExeCommand="-NoProfile -ExecutionPolicy Bypass -File &quot;[DIR_INSTALLER]Install-RustDesk.ps1&quot;" />
+
+    <!-- RUN AFTER FILES ARE INSTALLED -->
+    <InstallExecuteSequence>
+      <Custom Action="CA_RunRustDeskInstaller" After="InstallFiles">NOT Installed</Custom>
+    </InstallExecuteSequence>
+
+  </Product>
+</Wix>
